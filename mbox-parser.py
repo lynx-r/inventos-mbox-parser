@@ -49,10 +49,10 @@ def parse_mbox_from_stdin(aliases):
                     else:
                         name_and_email_dict[email] = (name, email, 1)
             else:
-                print("Missed email")
+                print("Missed email in line: " + line)
                 sys.exit(1)
 
-    name_and_email_dict_sorted = sorted(name_and_email_dict.items(), key=lambda e: e[1][2])
+    name_and_email_dict_sorted = sorted(name_and_email_dict.items(), key=lambda e: e[1][-1])
 
     for (k, v) in name_and_email_dict_sorted:
         print(k, v[-1])
