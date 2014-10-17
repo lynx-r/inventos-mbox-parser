@@ -1,12 +1,21 @@
 #! /usr/bin/env python3
 import argparse
 import getopt
+from itertools import product
 import re
 import sys
 
 
 def usage():
     print('cat message.mbox | mbox-parser.py -a aliases.txt')
+
+
+def _has_alias(email, aliases):
+    for alias_line in aliases:
+        alias_list = alias_line.split(' ')
+        if email in alias_list:
+            return True, alias_list[0]
+    return False, email
 
 
 def parse_mbox_from_stdin(aliases):
@@ -26,21 +35,14 @@ def parse_mbox_from_stdin(aliases):
                     else:
                         name_and_email_dict[email] = (name, email, 1)
                 else:
-                    has_alias = [name == alias.split(' ')[0] or email == alias.split(' ')[0] for alias in aliases]
-                    if has_alias[0] or has_alias[1]:
-                        count = 0
-                        key = ''
-                        if has_alias[0] and name in name_and_email_dict:
-                            count = name_and_email_dict[name][-1]
-                            key = name
-                        elif has_alias[1] and email in name_and_email_dict:
-                            count = name_and_email_dict[email][-1]
-                            key = email
-                        elif has_alias[0]:
-                            key = name
-                        elif has_alias[1]:
-                            key = email
-                        name_and_email_dict[key] = (name, email, count + 1)
+                    has_alias = _has_alias(email, aliases)
+                    if has_alias[0]:
+                        key = has_alias[1]
+                        if key in name_and_email_dict:
+                            count = name_and_email_dict[key][-1]
+                            name_and_email_dict[key] = (name, email, count + 1)
+                        else:
+                            name_and_email_dict[key] = (name, email, 1)
                     elif email in name_and_email_dict:
                         count = name_and_email_dict[email][-1]
                         name_and_email_dict[email] = (name, email, count + 1)
@@ -65,6 +67,7 @@ def main():
     if args.aliases:
         aliases = [line.rstrip() for line in open(args.aliases)]
     parse_mbox_from_stdin(aliases)
+
 
 if __name__ == "__main__":
     main()
