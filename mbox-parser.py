@@ -11,7 +11,6 @@ def usage():
 def parse_mbox_from_stdin(aliases):
     lines = sys.stdin.readlines()
     name_and_email_dict = {}
-    not_use_aliases = not aliases
     for line in lines:
         if line.startswith('From:'):
             name_match = re.search('(?<=From: )[a-zA-Z ]+(?!\S)', line)
@@ -19,7 +18,7 @@ def parse_mbox_from_stdin(aliases):
             if email_match:
                 name = name_match.group(0) if name_match else ''
                 email = email_match.group(1)
-                if not_use_aliases:
+                if not aliases:
                     if email in name_and_email_dict:
                         count = name_and_email_dict[email][-1]
                         name_and_email_dict[email] = (name, email, count + 1)
@@ -37,11 +36,9 @@ def parse_mbox_from_stdin(aliases):
                             count = name_and_email_dict[email][-1]
                             key = email
                         elif has_alias[0]:
-                            name_and_email_dict[name] = (name, email, 1)
-                            continue
+                            key = name
                         elif has_alias[1]:
-                            name_and_email_dict[email] = (name, email, 1)
-                            continue
+                            key = email
                         name_and_email_dict[key] = (name, email, count + 1)
                     elif email in name_and_email_dict:
                         count = name_and_email_dict[email][-1]
