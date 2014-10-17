@@ -53,7 +53,7 @@ def parse_mbox_from_stdin(aliases):
     name_and_email_dict_sorted = sorted(name_and_email_dict.items(), key=lambda e: e[1][-1])
 
     for (k, v) in name_and_email_dict_sorted:
-        print(k, v[-1])
+        print(k + ':', v[-1])
 
 
 def main():
